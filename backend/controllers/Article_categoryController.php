@@ -64,12 +64,12 @@ class Article_categoryController extends Controller
         return $this->render('add', ['model' => $model]);
     }
     //删除文章分类
-    //删除品牌
     public function actionDelete($id)
     {
-        $result = ArticleCategory::findOne($id)->delete();
+        $result = ArticleCategory::findOne($id);
         $act = [];
         if ($result) {
+            $result->delete();
             $act = 1;
         }
         echo json_encode($act);
