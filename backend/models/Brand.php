@@ -3,6 +3,7 @@
 namespace backend\models;
 
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "brand".
@@ -26,8 +27,9 @@ class Brand extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['intro','sort','status','name'], 'required'],
-            ['imgfile','file','skipOnEmpty'=>false,'extensions'=>['jpg','png','gif']],
+            [['intro','sort','status','name','logo'], 'required'],
+//            ['logo','safe'],
+//            ['imgfile','file','skipOnEmpty'=>false,'extensions'=>['jpg','png','gif']],
         ];
     }
 
@@ -44,4 +46,10 @@ class Brand extends \yii\db\ActiveRecord
             'status' => '状态',
         ];
     }
+    //查询品牌分类
+    public static function getItems(){
+        return ArrayHelper::map(self::find()->asArray()->all(),'id','name');
+
+    }
+
 }
