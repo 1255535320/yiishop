@@ -4,7 +4,7 @@
  */
 $form = yii\bootstrap\ActiveForm::begin();
 echo $form->field($model,'name')->textInput();
-echo $form->field($model,'sn')->textInput(['readonly'=>'true']);
+//echo $form->field($model,'sn')->textInput(['readonly'=>'true']);
 echo $form->field($model,'goods_category_id')->hiddenInput();
 //加载ztree
 $this->registerCssFile('@web/zTree/css/zTreeStyle/zTreeStyle.css');
