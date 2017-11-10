@@ -36,7 +36,7 @@ AppAsset::register($this);
         ],
     ]);
     $menuItems = [
-        ['label' => 'Home', 'url' => ['/site/index']],
+        ['label' => '修改密码', 'url' => ['/user/password']],
         ['label' => '商品列表', 'url' => ['/goods/list']],
         ['label' => '管理员列表', 'url' => ['/user/list']],
         ['label' => '品牌列表', 'url' => ['/brand/list']],
