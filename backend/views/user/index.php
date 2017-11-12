@@ -9,8 +9,8 @@
     </tr><b></b>
     <?php foreach ($model as $model): ?>
         <tr>
-            <td><?= $model['id'] ?></td>
-            <td><?= $model['username'] ?></td>
+            <td><?= $model['id']?></td>
+            <td><?= $model['username']?></td>
             <td><?= $model['email']?></td>
             <td><?=$model->status==1?'启用':'禁用'?></td>
             <td>

@@ -35,15 +35,12 @@ AppAsset::register($this);
             'class' => 'navbar-inverse navbar-fixed-top',
         ],
     ]);
-    $menuItems = [
-        ['label' => '修改密码', 'url' => ['/user/password']],
-        ['label' => '商品列表', 'url' => ['/goods/list']],
-        ['label' => '管理员列表', 'url' => ['/user/list']],
-        ['label' => '品牌列表', 'url' => ['/brand/list']],
-    ];
+    //菜单配置
     if (Yii::$app->user->isGuest) {
-        $menuItems[] = ['label' => 'Login', 'url' => ['/user/login']];
+        $menuItems=[];
+        $menuItems[] = ['label' => '登陆', 'url' => ['/user/login']];
     } else {
+        $menuItems=Yii::$app->user->identity->menus;
         $menuItems[] = '<li>'
             . Html::beginForm(['/user/logout'], 'post')
             . Html::submitButton(

@@ -53,15 +53,16 @@ class AuthController extends Controller
         $auth = \Yii::$app->authManager;
         $request = new Request();
         $model = AuthItem::findOne(['name' => $name]);
+        $permission = $auth->getPermission($name);
         if ($request->isPost) {
             $model->load($request->post());
             //验证
             if ($model->validate()) {
-                //创建权限
-                $permission = $auth->createPermission($model->name);
+                //更新权限
+                $permission->name = $model->name;
                 $permission->description = $model->description;
-                //添加到数据库
-                $auth->add($permission);
+                //数据库更新
+               $auth->update($name,$permission);
                 \Yii::$app->session->setFlash('warning', '添加成功');
                 return $this->redirect('item_list');
             }
@@ -131,6 +132,7 @@ class AuthController extends Controller
         $request = new Request();
         $auth = \Yii::$app->authManager;
         $model = AuthRule::findOne(['name' => $name]);
+        //var_dump($model);exit;
         if ($request->isPost) {
             $model->load($request->post());
             if ($model->validate()) {
