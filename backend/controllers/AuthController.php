@@ -62,7 +62,7 @@ class AuthController extends Controller
                 $permission->name = $model->name;
                 $permission->description = $model->description;
                 //数据库更新
-               $auth->update($name,$permission);
+                $auth->update($name, $permission);
                 \Yii::$app->session->setFlash('warning', '添加成功');
                 return $this->redirect('item_list');
             }
@@ -131,30 +131,30 @@ class AuthController extends Controller
     {
         $request = new Request();
         $auth = \Yii::$app->authManager;
-        $model = AuthRule::findOne(['name' => $name]);
-        //var_dump($model);exit;
+        $model = new AuthRule();
+        //获取角色
+        $role = $auth->getRole($name);
+        $model->scenario = AuthRule::SCENARIO_EDIT;
+//        $model->oldName = $role->name;
+        $model->name = $role->name;
+        $model->description = $role->description;
         if ($request->isPost) {
             $model->load($request->post());
-            if ($model->validate()) {
-                //创建角色
-                $role = $auth->getRole($model->name);
-                $role->description = $model->description;
-                //角色添加到数据表
-                $auth->add($role);
-                foreach ($model->permissions as $permissionName) {
-                    //根据权限名获取权限对象
-                    $permission = $auth->getPermission($permissionName);
-                    //给角色分配权限
-//                    echo 111;exit;
-                    $auth->addChild($role, $permission);
-                    \Yii::$app->session->setFlash('warning', '添加成功');
-                    return $this->redirect('role_list');
-                }
+            if ($model->validate() && $model->update($name)) {
+
+                \Yii::$app->session->setFlash('warning', '修改成功');
+                return $this->redirect('role_list');
             }
+
         }
-        //获取权限和注释
+        //获取角色和注释
         $permissions = $auth->getPermissions();
+        //取出用户角色
+        $roless = $auth->getPermissionsByRole($name);
+//        var_dump($roless);exit;
         $permissions = ArrayHelper::map($permissions, 'name', 'description');
+        //分配角色
+//        $model->roles = array_keys($roless);
         return $this->render('add_role', [
             'model' => $model,
             'permissions' => $permissions,
