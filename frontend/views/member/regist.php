@@ -149,8 +149,8 @@
     //异步验证短信验证码
     function bindPhoneNum() {
         //1.点击发送短信验证码按钮;通过ajax请求发送短信
-        var phone = $("#tel").val();//获取用户的手机号
-        $.get("/member/ajaxsms", {"phone": phone}, function ($data) {
+        var tel = $("#tel").val();//获取用户的手机号
+        $.get("/member/ajaxsms", {"tel": tel}, function ($data) {
             if ($data == 'success') {
                 alert('发送成功!')
             } else {
@@ -215,7 +215,7 @@
                     required: true,
                     remote: {
                         url: '/member/checkmsn',     //后台处理程序
-                        type: "post",               //数据发送方式
+                        type: "get",               //数据发送方式
                         dataType: "json",           //接受数据格式
                         data: {                     //要传递的数据
                             captcha: function () {
@@ -223,7 +223,8 @@
                             },
                             tel: function () {
                                 return $("#tel").val();
-                            }
+                            },
+//                            '_csrf-frontend':''
                         }
                     }
                 }
@@ -249,7 +250,7 @@
                 },
                 captcha: {
                     required: "请填写验证码",
-                    remote: '验证码错误',
+                    remote: '验证码错误'
                 }
                  },
         //设置错误信息的标签

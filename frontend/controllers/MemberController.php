@@ -9,10 +9,13 @@
 namespace frontend\controllers;
 
 
+use backend\models\Goods;
+use backend\models\GoodsCategory;
 use Codeception\Module\Redis;
 use frontend\components\Sms;
 use frontend\models\LoginForm;
 use frontend\models\Vip;
+use yii\data\Pagination;
 use yii\web\Controller;
 use yii\web\Request;
 
@@ -53,7 +56,7 @@ class MemberController extends Controller
     //注册用户
     public function actionVipAdd()
     {
-        $request = new Request();
+        $request = \Yii::$app->request;
         $model = new Vip();
         if ($request->isPost) {
             //接收数据
@@ -78,7 +81,7 @@ class MemberController extends Controller
     }
 
     //ajax发送短信
-    public function actionAjaxsms($phone){
+    public function actionAjaxsms($tel){
 //        var_dump(56546);exit;
         //接收请求的手机号
         $code=rand(1000, 9999);
@@ -86,7 +89,7 @@ class MemberController extends Controller
         $response = Sms::sendSms(
             "佳荟萃", // 短信签名
             "SMS_109460462", // 短信模板编号
-            $phone,// 短信接收者
+            $tel,// 短信接收者
             Array(  // 短信模板中字段的值
                 "code"=>$code,
             )
@@ -97,7 +100,7 @@ class MemberController extends Controller
             //3.保存验证码redis
             $redis = new \Redis();
             $redis->connect('127.0.0.1');
-            $redis->set('captcha_'.$phone,$code,5*60);//保存5分钟
+            $redis->set('captcha_'.$tel,$code,5*60);//保存5分钟
             //验证验证码
 //            $code=$redis->get('captcha_'.$phone);
             return 'success';
@@ -112,17 +115,18 @@ class MemberController extends Controller
     public function actionCheckmsn(){
         //从redis获取验证码
         $redis = new \Redis();
+        $redis->connect('127.0.0.1');
         $request=new Request();
         //接收数据
-        var_dump($request->post());exit;
-        $phone1=$request->post()->tel;
-        $captcha=$request->get()->captcha;
+//        var_dump($request->get());exit;
+        $phone1=$request->get("tel");
+        $captcha=$request->get("captcha");
         if($redis->exists('captcha_'.$phone1 )){
             //验证code
             if($redis->get('captcha_'.$phone1)==$captcha){
-                return true;
+                return 'true';
             }else{
-                return false;
+                return 'false';
             }
         }
 
@@ -161,7 +165,7 @@ class MemberController extends Controller
     public function actionChecktel($tel)
     {
 //        echo 111;exit();
-        $model = Vip::findOne(['phone' => $tel]);
+        $model = Vip::findOne(['tel' => $tel]);
         //验证用户名
         if ($model) {
             return 'false';
@@ -169,6 +173,25 @@ class MemberController extends Controller
             return 'true';
 
         }
+    }
+    public function actionList($id)
+    {
+        //商品分类
+        $goods_category = GoodsCategory::findOne(['id' => $id]);
+        //三级分类
+        if ($goods_category->depth == 2) {
+            $query = Goods::find()->where(['id' => $id]);
+
+        } else {//二级分类
+            $ids = $goods_category->children()->andwhere(['depth' => 2])->column();
+            $query = Goods::find()->where(['in', 'id', $ids]);
+        }
+        $pager = new Pagination();
+        $pager->totalCount = $query->count();
+        $pager->pageSize = 20;
+        $models = $query->limit($pager->limit)->offset($pager->offset)->all();
+//        var_dump($ids);exit;
+        return $this->render('list', ['models' => $models, 'pager' => $pager]);
     }
 
     //验证短信
