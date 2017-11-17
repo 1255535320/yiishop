@@ -12,6 +12,7 @@ return [
     'bootstrap' => ['log'],
     'controllerNamespace' => 'frontend\controllers',
     'layout'=>false,
+    'defaultRoute' => 'member/index', //默认首页
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-frontend',

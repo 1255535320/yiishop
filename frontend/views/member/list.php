@@ -24,7 +24,7 @@
 			</div>
 			<div class="topnav_right fr">
 				<ul>
-					<li>您好，欢迎来到京西！[<a href="login.html">登录</a>] [<a href="register.html">免费注册</a>] </li>
+					<li>您好，欢迎来到京西！[<a href="<?=\yii\helpers\Url::to(['/member/login'])?>">登录</a>] [<a href="<?=\yii\helpers\Url::to(['/member/add-vip'])?>">免费注册</a>] </li>
 					<li class="line">|</li>
 					<li>我的订单</li>
 					<li class="line">|</li>
@@ -48,8 +48,7 @@
 				<div class="search_form">
 					<div class="form_left fl"></div>
 					<form action="" name="serarch" method="get" class="fl">
-                        <input name="_csrf-frontend" type="hidden" id="_csrf" value="<?= Yii::$app->request->csrfToken ?>">
-                        <input type="text" class="txt" value="请输入商品关键字" /><input type="submit" class="btn" value="搜索" />
+						<input type="text" class="txt" value="请输入商品关键字" /><input type="submit" class="btn" value="搜索" />
 					</form>
 					<div class="form_right fl"></div>
 				</div>
@@ -689,15 +688,18 @@
 
 			<!-- 商品列表 start-->
 			<div class="goodslist mt10">
-				<ul>
+<!--				<ul>  --><?php //var_dump($models);exit;?>
+                    <?php foreach ($models as $model):?>
+
 					<li>
 						<dl>
-							<dt><a href=""><img src="'.<?=\yii\helpers\Url::to()?>.'" alt="" /></a></dt>
-							<dd><a href="">清华同方精锐X2 台式电脑（双核E3500 2G 500G DVD 键鼠）带20英寸显示器</a></dt>
-							<dd><strong>￥2399.00</strong></dt>
-							<dd><a href=""><em>已有10人评价</em></a></dt>
+							<dt><a href="<?=\yii\helpers\Url::to(['/member/goods','id'=>$model->id])?>"><img src="<?=Yii::$app->params['backend_domain'].$model->logo?>" alt="" /></a></dt>
+							<dd><a href="<?=\yii\helpers\Url::to(['/member/goods','id'=>$model->id])?>"><?=$model->name?></a></dd>
+							<dd><strong>￥<?=$model->shop_price?></strong></dd>
+							<dd><a href=""><em>已有10人评价</em></a></dd>
 						</dl>
 					</li>
+                    <?php endforeach;?>
 				</ul>
 			</div>
 			<!-- 商品列表 end-->

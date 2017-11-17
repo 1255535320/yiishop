@@ -11,12 +11,15 @@ namespace frontend\controllers;
 
 use backend\models\Goods;
 use backend\models\GoodsCategory;
+use backend\models\GoodsGallery;
 use Codeception\Module\Redis;
 use frontend\components\Sms;
+use frontend\models\Cart;
 use frontend\models\LoginForm;
 use frontend\models\Vip;
 use yii\data\Pagination;
 use yii\web\Controller;
+use yii\web\Cookie;
 use yii\web\Request;
 
 class MemberController extends Controller
@@ -38,7 +41,7 @@ class MemberController extends Controller
                     \Yii::$app->session->setFlash('success', '登陆成功');
                     return $this->redirect('index');
                 } else {
-                   return var_dump($model->getErrors()
+                    return var_dump($model->getErrors()
                     );
                 }
             };
@@ -81,51 +84,53 @@ class MemberController extends Controller
     }
 
     //ajax发送短信
-    public function actionAjaxsms($tel){
+    public function actionAjaxsms($tel)
+    {
 //        var_dump(56546);exit;
         //接收请求的手机号
-        $code=rand(1000, 9999);
+        $code = rand(1000, 9999);
         //1.发送随机验证码短信
         $response = Sms::sendSms(
             "佳荟萃", // 短信签名
             "SMS_109460462", // 短信模板编号
             $tel,// 短信接收者
             Array(  // 短信模板中字段的值
-                "code"=>$code,
+                "code" => $code,
             )
         );
 //        var_dump($response);exit;
         //2.根据$response判断是否发送成功
-        if ($response->Code=='OK'){
+        if ($response->Code == 'OK') {
             //3.保存验证码redis
             $redis = new \Redis();
             $redis->connect('127.0.0.1');
-            $redis->set('captcha_'.$tel,$code,5*60);//保存5分钟
+            $redis->set('captcha_' . $tel, $code, 5 * 60);//保存5分钟
             //验证验证码
 //            $code=$redis->get('captcha_'.$phone);
             return 'success';
-        }else{
+        } else {
             return 'false';
         }
 
 
-
     }
+
     //ajax验证手机短信
-    public function actionCheckmsn(){
+    public function actionCheckmsn()
+    {
         //从redis获取验证码
         $redis = new \Redis();
         $redis->connect('127.0.0.1');
-        $request=new Request();
+        $request = new Request();
         //接收数据
 //        var_dump($request->get());exit;
-        $phone1=$request->get("tel");
-        $captcha=$request->get("captcha");
-        if($redis->exists('captcha_'.$phone1 )){
+        $phone1 = $request->get("tel");
+        $captcha = $request->get("captcha");
+        if ($redis->exists('captcha_' . $phone1)) {
             //验证code
-            if($redis->get('captcha_'.$phone1)==$captcha){
+            if ($redis->get('captcha_' . $phone1) == $captcha) {
                 return 'true';
-            }else{
+            } else {
                 return 'false';
             }
         }
@@ -133,6 +138,7 @@ class MemberController extends Controller
         //进行对比
 
     }
+
     //验证用户信息唯一性
     public function actionCheckname($username)
     {
@@ -174,6 +180,7 @@ class MemberController extends Controller
 
         }
     }
+
     public function actionList($id)
     {
         //商品分类
@@ -193,7 +200,6 @@ class MemberController extends Controller
 //        var_dump($ids);exit;
         return $this->render('list', ['models' => $models, 'pager' => $pager]);
     }
-
     //验证短信
 //    public function actionSms()
 //    {
@@ -211,4 +217,149 @@ class MemberController extends Controller
 //        print_r($response);
 //
 //    }
+    //商品详情
+    public function actionGoods($id)
+    {
+        $model = Goods::findOne($id);
+        $img = GoodsGallery::find()->where(['goods_id' => $id])->all();
+//        var_dump($img);exit;
+        return $this->render('goods', ['model' => $model, 'img' => $img]);
+    }
+
+    //加入购物车
+    public function actionAddCart($goods_id, $amount)
+    {
+//        var_dump($id,$amount);exit;
+        //判断用户是否登录
+        if (\Yii::$app->user->isGuest) {
+            //游客,购物车存入cookie
+            $cookies = \Yii::$app->request->cookies;//可读的cookie
+            $carts = $cookies->getValue('carts');//读取购物车
+            if ($carts) {
+                $carts = unserialize($carts);//如果购物车还有其他商品,则合并在一起
+            } else {
+                $carts = [];
+            }
+            //判断购物车中是否有该商品,有就叠加数量,没有直接添加
+            if (array_key_exists($goods_id, $carts)) {
+                $carts[$goods_id] += $amount;
+            } else {
+                //直接添加
+                $carts[$goods_id] = $amount;
+            }
+            //将购物车保存在cookie中
+            $cookies = \Yii::$app->response->cookies; //可写的cookie
+            $cookie = new Cookie();
+            $cookie->name = 'carts';
+            $cookie->value = serialize($carts);
+            $cookies->add($cookie);
+        } else {//已登录,
+            $request = new Request();
+            $model = new Cart();
+            $model->load($request->get(), '');
+            $carts = Cart::findOne(['member_id' => \Yii::$app->user->getId(), 'goods_id' => $goods_id]);
+            if ($carts) {
+                //数据库有该商品
+                $carts->amount = $carts->amount + $amount;
+                $carts->save();
+//                return $this->redirect('cart');
+            } else {
+                $model->member_id = \Yii::$app->user->getId();
+                $model->goods_id = $goods_id;
+                $model->amount = $amount;
+                $model->save();
+//                return $this->redirect('cart');
+            }
+        }
+        return $this->redirect('cart');
+    }
+
+    //购物车页面
+    public function actionCart()
+    {
+        //判断是否登录
+        if (\Yii::$app->user->isGuest) {
+            //未登录--从cookie中取出数据显示在事业
+            $cookies = \Yii::$app->request->cookies;
+            $carts = $cookies->getValue('carts');
+            if ($carts) {
+                $carts = unserialize($carts);//存在取出
+            } else {
+                $carts = [];
+            }
+            //获取购物车商品信息
+            $models = Goods::find()->where(['in', 'id', array_keys($carts)])->all();
+//            var_dump($models);exit;
+//            var_dump(111);exit;
+        } else {
+            //已登录
+            //获取购物车信息
+            $carts1 = Cart::find()->where(['member_id' => \Yii::$app->user->getId()])->all();
+            foreach ($carts1 as $cart) {
+                $cart2[] = $cart->goods_id; //遍历商品id
+                $carts[$cart->goods_id] = $cart->amount; //将购物车的商品id和数量联系起来
+            }
+            $models = Goods::find()->where(['in', 'id', $cart2])->all();
+//
+        }//展示视图
+     //总计金额
+        $count = 0;
+        return $this->render('cart', ['carts' => $carts, 'models' => $models, 'count' => $count]);
+    }
+
+    //删除
+    public function actionCartDel($goods_id)
+    {
+//        var_dump($amount);exit;
+        Cart::findOne(['goods_id' => $goods_id])->delete();
+        return $this->redirect('cart');
+    }
+
+    //ajax更新购物车
+    public function actionAjaxCart($type)
+    {
+        //登陆操作数据库,未登录操作cookie
+        switch ($type) {
+            case 'change';//修改购物车
+                $goods_id = \Yii::$app->request->get('goods_id');
+                $amount = \Yii::$app->request->get('amount');
+//                var_dump($goods_id,$amount);exit;
+                //判断是否登陆
+                if (\Yii::$app->user->isGuest){
+                    //取出cookie中的购物车
+                    $cookies=\Yii::$app->request->cookies;
+                    $carts=$cookies->getValue('carts');
+                    if ($carts){//判断购物车中是否有商品
+                        $carts = unserialize($carts);//$carts = ['1'=>'3','2'=>'2'];
+                    }else{
+                        $carts=[];
+                    }
+                    //修改购物车商品数量
+                    $carts[$goods_id]=$amount;
+                    //保存cookie
+                    $cookies=\Yii::$app->response->cookies;
+                    $cookie=new Cookie();
+                    $cookie->name = 'carts';
+                    $cookie->value=serialize($carts);
+                    $cookies->add($cookie);
+                }else{
+                    //已登陆状态
+                    $carts=Cart::findOne(['goods_id'=>$goods_id]);
+//                    var_dump($carts);exit;
+                    $carts->amount=$amount;
+                    $carts->save();
+                }
+        }
+    }
+    //订单功能
+    public function actionOrder(){
+        //判断用户是否登陆
+        if (\Yii::$app->user->isGuest){
+            //跳转到登陆页面
+            return $this->redirect('login');
+        }else{
+
+        }
+    }
+
 }
