@@ -363,7 +363,7 @@ class MemberController extends Controller
         }else{
             $request=\Yii::$app->request;
             if ($request->isPost){
-                var_dump($request->post());exit;
+//                var_dump($request->post());exit;
                 $order=new Order();
                 $order->member_id=\Yii::$app->user->id;
                 //根据地址id获取地址电话信息
@@ -384,6 +384,14 @@ class MemberController extends Controller
                 $order->create_time=time();
                 $order->status=1;
                 $order->total=$request->post('total');
+                //开启事务
+//                $transaction=Yii::$app->db->beginTransaction();
+//                try{
+//                    if ($order->save()){
+//                        //订单保存
+//                        $carts=Cart::find()
+//                    }
+//                }
                 //保存
                 $order->save();
 

@@ -201,7 +201,7 @@
 		</div>
 
 		<div class="fillin_ft">
-			<a href="<?=\yii\helpers\Url::to(['/member/order'])?>"><span>提交订单</span></a>
+			<a href="<?=\yii\helpers\Url::to(['/member/success'])?>"><span>提交订单</span></a>
 			<p>应付总额：<strong>￥<input type="hidden" name="total" value="<?=$count+10?>"/><?=$count+10?>元</strong></p>
 			
 		</div>
