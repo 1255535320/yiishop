@@ -14,13 +14,16 @@ use backend\models\GoodsCategory;
 use backend\models\GoodsGallery;
 use Codeception\Module\Redis;
 use frontend\components\Sms;
+use frontend\models\Address;
 use frontend\models\Cart;
 use frontend\models\LoginForm;
+use frontend\models\Order;
 use frontend\models\Vip;
 use yii\data\Pagination;
 use yii\web\Controller;
 use yii\web\Cookie;
 use yii\web\Request;
+use Yii;
 
 class MemberController extends Controller
 {
@@ -358,8 +361,51 @@ class MemberController extends Controller
             //跳转到登陆页面
             return $this->redirect('login');
         }else{
+            $request=\Yii::$app->request;
+            if ($request->isPost){
+                var_dump($request->post());exit;
+                $order=new Order();
+                $order->member_id=\Yii::$app->user->id;
+                //根据地址id获取地址电话信息
+                $address_id=$request->post('address_id');
+                $address = Address::findOne(['id'=>$address_id,'member_id'=>\Yii::$app->user->id]);
+                $order->name=$address->name;
+                $order->province=$address->province;
+                $order->city=$address->city;
+                $order->area=$address->area;
+                $order->address=$address->address;
+                $order->tel=$address->phone;
+                //配送方式价格
+                $order->delivery_name = $request->post('delivery_name');
+                $order->delivery_price = $request->post('delivery_price');
+                //支付方式
+                $order->payment_name=$request->post('payment_name');
+                //时间.金额,状态
+                $order->create_time=time();
+                $order->status=1;
+                $order->total=$request->post('total');
+                //保存
+                $order->save();
 
+            }//展示订单表单
+            //查询地址
+            $address=Address::find()->where(['member_id'=>\Yii::$app->user->getId()])->all();
+            //查询订单
+            $carts1=Cart::find()->where(['member_id'=>\Yii::$app->user->getId()])->all();
+            //获取购物车信息
+            foreach ($carts1 as $cart) {
+                $cart2[] = $cart->goods_id; //遍历商品id
+                $carts[$cart->goods_id] = $cart->amount; //将购物车的商品id和数量联系起来
+            }
+            $models = Goods::find()->where(['in', 'id', $cart2])->all();
+            $count = 0;$amounts=0;
+            return $this->render('flow2',['address'=>$address,'models'=>$models,'carts'=>$carts,'count'=>$count,'amounts'=>$amounts]);
         }
+    }
+
+    //支付成功页面
+    public function actionSuccess(){
+        return $this->render('flow3');
     }
 
 }
