@@ -135,7 +135,7 @@ class AuthController extends Controller
         //获取角色
         $role = $auth->getRole($name);
         $model->scenario = AuthRule::SCENARIO_EDIT;
-//        $model->oldName = $role->name;
+//      $model->oldName = $role->name;
         $model->name = $role->name;
         $model->description = $role->description;
         if ($request->isPost) {

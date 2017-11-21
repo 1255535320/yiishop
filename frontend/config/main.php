@@ -16,6 +16,7 @@ return [
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-frontend',
+//            'csrfParam' => false,
         ],
         'user' => [
             'identityClass' => 'frontend\models\Vip',

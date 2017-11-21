@@ -184,9 +184,9 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
             $menuItem = ['label' => $menu->name, 'items' => $items];
             //给菜单组加一级菜单
             //判断顶级菜单是否有子菜单
-            if ($items){
+//            if ($items){
                 $menuItems[] = $menuItem;
-            }
+//            }
         }
         return $menuItems;
     }

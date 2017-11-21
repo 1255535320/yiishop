@@ -201,5 +201,15 @@ class UserController extends \yii\web\Controller
 //            ]
 //        ];
 //    }
+    //邮件功能
+    public function actionEmail()
+    {
+        $r = \Yii::$app->mailer->compose()
+            ->setFrom('1255535320@qq.com')//发件人
+            ->setTo('1255535320@qq.com')//收件人
+            ->setSubject('11111')//标题
+            ->setHtmlBody('<p style="color: red"> 222222</p>');//内容
+        var_dump($r);
+    }
 
 }

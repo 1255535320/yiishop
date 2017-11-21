@@ -2,7 +2,9 @@
 
 namespace frontend\models;
 
+use backend\models\Goods;
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "order".
@@ -28,6 +30,16 @@ class Order extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
+    public static $delivery=[
+      1=>['普通快递',10] ,
+      2=>['申通',12],
+      3=>['顺丰',22],
+    ];
+    //支付方式
+    public static $payment=[
+        1=>'在线支付',
+        2=>'货到付款',
+        ];
     public static function tableName()
     {
         return 'order';
@@ -36,16 +48,16 @@ class Order extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
-    {
-        return [
-            [['member_id', 'name', 'province', 'city', 'area', 'address', 'tel', 'delivery_name', 'delivery_price', 'payment_name', 'total'], 'required'],
-            [['delivery_price', 'total'], 'number'],
-            [[ 'create_time'], 'integer'],
-            [['member_id', 'name', 'province', 'city', 'area', 'address', 'delivery_name', 'payment_name'], 'string', 'max' => 255],
-            [['tel'], 'string', 'max' => 11],
-        ];
-    }
+//    public function rules()
+//    {
+//        return [
+//            [['member_id', 'name', 'province', 'city', 'area', 'address', 'tel', 'delivery_name', 'delivery_price', 'payment_name', 'total'], 'required'],
+//            [['delivery_price', 'total'], 'number'],
+//            [[ 'create_time'], 'integer'],
+//            [['member_id', 'name', 'province', 'city', 'area', 'address', 'delivery_name', 'payment_name'], 'string', 'max' => 255],
+//            [['tel'], 'string', 'max' => 11],
+//        ];
+//    }
 
     /**
      * @inheritdoc
@@ -70,4 +82,5 @@ class Order extends \yii\db\ActiveRecord
             'create_time' => '第三方支付交易号',
         ];
     }
+
 }

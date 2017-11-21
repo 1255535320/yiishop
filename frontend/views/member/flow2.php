@@ -67,7 +67,7 @@
 				<div class="address_info">
                     <?php foreach ($address as $addres):?>
 				<p>
-                    <input type="radio" value="<?=$addres->id?>" name="address_id"/><?=$addres->name?>　<?=$addres->phone?>　<?=$addres->province?>　
+                    <input type="radio" value="<?=$addres->id?>" name="address_id" /><?=$addres->name?>　<?=$addres->phone?>　<?=$addres->province?>　
 
                     <?=$addres->city?>　<?=$addres->area?>　<?=$addres->address?>
                 </p>
@@ -94,12 +94,28 @@
 						<tbody>
 							<tr class="cur">	
 								<td>
-									<input type="radio" name="delivery_name" value="普通快递" checked="checked" />普通快递送货上门
+									<input type="radio" name="delivery_name" value="1" checked="checked" />普通快递送货上门
 
 								</td>
-								<td>￥10.00元<input type="hidden" name="delivery_price" value="10" ></td>
+								<td>￥10.00元<input type="hidden" id="delivery_price" name="delivery_price" value="10" ></td>
 								<td>首重1kg收10元,续重每1kg加2元</td>
 							</tr>
+                            <tr class="cur">
+                                <td>
+                                    <input type="radio" name="delivery_name" value="2"/>申通
+
+                                </td>
+                                <td>￥12.00元<input type="hidden" id="delivery_price" name="delivery_price" value="10" ></td>
+                                <td>首重1kg收12元,续重每1kg加2元</td>
+                            </tr>
+                            <tr class="cur">
+                                <td>
+                                    <input type="radio" name="delivery_name" value="3" />顺丰
+
+                                </td>
+                                <td>￥22.00元<input type="hidden" id="delivery_price" name="delivery_price" value="10" ></td>
+                                <td>首重1kg收22元,续重每1kg加2元</td>
+                            </tr>
 						</tbody>
 					</table>
 
@@ -115,9 +131,13 @@
 				<div class="pay_select">
 					<table> 
 						<tr class="cur">
-							<td class="col1"><input type="radio" name="payment_name" checked="checked"  value="在线支付"/>在线支付</td>
+							<td class="col1"><input type="radio" name="payment_name" checked="checked"  value="1"/>在线支付</td>
 							<td class="col2">轻轻一点,轻松支付,购买更简单!</td>
 						</tr>
+                        <tr class="cur">
+                            <td class="col1"><input type="radio" name="payment_name" value="2"/>货到付款</td>
+                            <td class="col2">货到付款</td>
+                        </tr>
 					</table>
 
 				</div>
@@ -201,7 +221,7 @@
 		</div>
 
 		<div class="fillin_ft">
-			<a href="<?=\yii\helpers\Url::to(['/member/success'])?>"><span>提交订单</span></a>
+			<a href="javascript:;" id="post"><span>提交订单</span></a>
 			<p>应付总额：<strong>￥<input type="hidden" name="total" value="<?=$count+10?>"/><?=$count+10?>元</strong></p>
 			
 		</div>
@@ -235,5 +255,21 @@
 		</p>
 	</div>
 	<!-- 底部版权 end -->
+<script type="text/javascript">
+    $("#post").click(function () {
+        var address_id=$('.address').find('input:checked').val();
+        var pay_id=$('.pay_select').find('input:checked').val();
+        var delivery_id=$('.delivery_select').find('input:checked').val();
+        console.debug(address_id,pay_id,delivery_id);
+        $.post('/member/order',{'address_id':address_id,'pay_id':pay_id,'delivery_id':delivery_id},
+            function ($data) {
+            if($data==1){
+                window.location.href="/member/success";
+            }else{
+                alert('商品库存不足');
+            }
+        })
+    })
+</script>
 </body>
 </html>

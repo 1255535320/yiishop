@@ -20,7 +20,7 @@
         </div>
         <div class="topnav_right fr">
             <ul>
-                <li>您好，欢迎来到京西！[<a href="<?=\yii\helpers\Url::to('login')?>">登录</a>] [<a href="<?=\yii\helpers\Url::to('vip_add')?>">免费注册</a>]</li>
+                <li>您好，欢迎来到京西！[<a href="<?=\yii\helpers\Url::to('login')?>">登录</a>] [<a href="<?=\yii\helpers\Url::to('vip-add')?>">免费注册</a>]</li>
                 <li class="line">|</li>
                 <li>我的订单</li>
                 <li class="line">|</li>
@@ -36,7 +36,7 @@
 <!-- 页面头部 start -->
 <div class="header w990 bc mt15">
     <div class="logo w990">
-        <h2 class="fl"><a href="index.html"><img src="/images/logo.png" alt="京西商城"></a></h2>
+        <h2 class="fl"><a href="<?=\yii\helpers\Url::to(['member/index'])?>"><img src="/images/logo.png" alt="京西商城"></a></h2>
     </div>
 </div>
 <!-- 页面头部 end -->
@@ -96,7 +96,7 @@
             <h3>还不是商城用户</h3>
             <p>现在免费注册成为商城用户，便能立刻享受便宜又放心的购物乐趣，心动不如行动，赶紧加入吧!</p>
 
-            <a href="regist.html" class="reg_btn">免费注册 >></a>
+            <a href="<?=\yii\helpers\Url::to('vip-add')?>" class="reg_btn">免费注册 >></a>
         </div>
 
     </div>
