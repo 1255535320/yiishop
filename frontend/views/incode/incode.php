@@ -6,7 +6,7 @@
         </div>
         <div class="topnav_right fr">
             <ul>
-                <li id="user_info">您好，欢迎来到京西！[<a href="login.html">登录</a>] [<a href="register.html">免费注册</a>] </li>
+                <li id="user_info">您好，欢迎来到京西！[<a href="<?=\yii\helpers\Url::to('/member/login')?>">登录</a>] [<a href="<?=\yii\helpers\Url::to('/member/vip-add')?>">免费注册</a>] </li>
                 <li class="line">|</li>
                 <li>我的订单</li>
                 <li class="line">|</li>
@@ -24,7 +24,7 @@
 <div class="header w1210 bc mt15">
     <!-- 头部上半部分 start 包括 logo、搜索、用户中心和购物车结算 -->
     <div class="logo w1210">
-        <h1 class="fl"><a href="index.html"><img src="/images/logo.png" alt="京西商城"></a></h1>
+        <h1 class="fl"><a href="<?=\yii\helpers\Url::to('/member/index')?>"><img src="/images/logo.png" alt="京西商城"></a></h1>
         <!-- 头部搜索 start -->
         <div class="search fl">
             <div class="search_form">
@@ -57,7 +57,7 @@
                 </dt>
                 <dd>
                     <div class="prompt" id="user_info2">
-                        您好，请<a href="">登录</a>
+                        您好，请<a href="<?=\yii\helpers\Url::to('/member/login')?>">登录</a>
                     </div>
                     <div class="uclist mt10">
                         <ul class="list1 fl">
